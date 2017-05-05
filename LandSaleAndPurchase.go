@@ -14,7 +14,7 @@ type SimpleChaincode struct {
 }
 
 type OWNER_ID_Holder struct {
-	OWNER_IDs []string `json:"v5cs"`
+	OWNER_IDs []string `json:"OWNER_IDs"`
 }
 
 //Information to be stored about land in blockchain network
@@ -120,13 +120,15 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 }
 
 func getOwnerById(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-
+	var own Owner
 	bytes, err := stub.GetState(args[0])
+
+	err = json.Unmarshal(bytes, own)
 
 	if err != nil {
 		return nil, err
 	}
-	return bytes, nil
+	return []byte(own), nil
 
 }
 
