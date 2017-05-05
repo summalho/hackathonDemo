@@ -120,7 +120,7 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 }
 
 func getOwnerById(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	var own Owner
+
 	bytes, err := stub.GetState(args[0])
 
 	if err != nil {
