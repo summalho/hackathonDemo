@@ -123,12 +123,10 @@ func getOwnerById(stub shim.ChaincodeStubInterface, args []string) ([]byte, erro
 	var own Owner
 	bytes, err := stub.GetState(args[0])
 
-	err = json.Unmarshal(bytes, own)
-
 	if err != nil {
 		return nil, err
 	}
-	return []byte(own), nil
+	return bytes, nil
 
 }
 
@@ -191,7 +189,7 @@ func retrieveOwner(stub shim.ChaincodeStubInterface, ownerId string) (Owner, err
 
 func createOwner(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
-	var ownerDetails Owner
+	ownerDetails := Owner{}
 
 	ownerDetails.firstName = args[0]
 	ownerDetails.lastName = args[1]
