@@ -105,8 +105,39 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 
 		return listpropertyHistory(stub, args)
 	}
+	if function == "getOwnerById" {
+
+		return getOwnerById(stub, args)
+	}
+
+	if function == "getIds" {
+
+		return getIds(stub, args)
+	}
 
 	return nil, nil
+
+}
+
+func getOwnerById(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+
+	bytes, err := stub.GetState(args[0])
+
+	if err != nil {
+		return nil, err
+	}
+	return bytes, nil
+
+}
+
+func getIds(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+
+	bytes, err := stub.GetState("owner_Ids")
+
+	if err != nil {
+		return nil, err
+	}
+	return bytes, nil
 
 }
 
