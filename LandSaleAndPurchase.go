@@ -116,6 +116,10 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 
 		return listRegisteredProperties(stub, args)
 	}
+	if function == "listRegisteredPropertiesByOwnwer" {
+
+		return listRegisteredPropertiesByOwnwer(stub, args)
+	}
 
 	if function == "getOwnerById" {
 
@@ -236,6 +240,48 @@ func listRegisteredOwners(stub shim.ChaincodeStubInterface, args []string) ([]by
 	}
 
 	return []byte(result), nil
+}
+
+func listRegisteredPropertiesByOwnwer(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+
+	ownerId := args[0]
+
+	bytes, err := stub.GetState("property_Ids")
+
+	fmt.Println("Ids recieved", string(bytes))
+	var propertyIdHolder PROPERTY_ID_Holder
+	err = json.Unmarshal(bytes, &propertyIdHolder)
+
+	result := "["
+
+	var temp []byte
+	var p Property
+
+	for _, pro := range propertyIdHolder.PROPERTY_IDs {
+
+		fmt.Println("Inside for loop for getting Property. Property Id is  ", pro)
+
+		p, err = retrieveProperty(stub, pro)
+
+		if p.OwnerId == ownerId {
+			temp, err = json.Marshal(p)
+
+			if err == nil {
+				result += string(temp) + ","
+			}
+
+		}
+
+	}
+
+	if len(result) == 1 {
+		result = "[]"
+	} else {
+		result = result[:len(result)-1] + "]"
+	}
+
+	return []byte(result), nil
+
 }
 
 func listRegisteredProperties(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
