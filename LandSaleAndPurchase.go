@@ -254,7 +254,7 @@ func listRegisteredProperties(stub shim.ChaincodeStubInterface, args []string) (
 
 	for _, pro := range propertyIdHolder.PROPERTY_IDs {
 
-		fmt.Println("Inside for loop for getting Property. Owner Id is  ", pro)
+		fmt.Println("Inside for loop for getting Property. Property Id is  ", pro)
 
 		p, err = retrieveProperty(stub, pro)
 
@@ -381,6 +381,16 @@ func generateUserId() int {
 
 }
 
+func generatePropertyHistoryId() int {
+
+	min := 100001
+	max := 999999
+
+	rand.Seed(time.Now().Unix())
+	return (rand.Intn(max-min) + min)
+
+}
+
 func savePropertyInHistory(stub shim.ChaincodeStubInterface, propertyDetails Property, agreementAmount string) {
 
 	var propHis PropertyHistory
@@ -393,12 +403,11 @@ func savePropertyInHistory(stub shim.ChaincodeStubInterface, propertyDetails Pro
 
 	propHis.PropertyId = propIdSTR
 	propHis.AgreementDate = timestr
-
 	propHis.AgreementAmount = agreementAmount
 
 	propHis.OwnerId = propertyDetails.OwnerId
 
-	propHis.HistoryId = generateUserId()
+	propHis.HistoryId = generatePropertyHistoryId()
 
 	hsitoryBytes, err := json.Marshal(propHis)
 
@@ -438,7 +447,6 @@ func createProperty(stub shim.ChaincodeStubInterface, args []string) ([]byte, er
 	propertyDetails.Plotno = args[4]
 	propertyDetails.Longitude = args[5]
 	propertyDetails.Latitude = args[6]
-
 	propertyDetails.PropertyId = generateUserId()
 
 	propertyDetailsBytes, err := json.Marshal(propertyDetails)
