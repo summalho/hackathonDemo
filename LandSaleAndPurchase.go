@@ -26,7 +26,7 @@ type PROPERTY_HISTORY struct {
 //Information to be stored about land in blockchain network
 type Property struct {
 	OwnerId    string `json:"ownerId"`
-	PropertyId int    `json:"landId"`
+	PropertyId int    `json:"propertyId"`
 	Plotno     string `json:"plotno"`
 	City       string `json:"City"`
 	Area       string `json:"area"`
@@ -419,7 +419,9 @@ func savePropertyInHistory(stub shim.ChaincodeStubInterface, propertyDetails Pro
 	err = stub.PutState("property_history_Holder", bytes)
 	fmt.Println("Address Id Saved is ", string(bytes))
 
-	fmt.Println(err.Error())
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
 }
 
@@ -441,7 +443,7 @@ func createProperty(stub shim.ChaincodeStubInterface, args []string) ([]byte, er
 
 	propertyDetailsBytes, err := json.Marshal(propertyDetails)
 
-	fmt.Println("Owner Details are : ", string(propertyDetailsBytes))
+	fmt.Println("Property Details are : ", string(propertyDetailsBytes))
 
 	if err != nil {
 		return nil, errors.New("Problem while saving Owner Details in BlockChain Network")
