@@ -20,7 +20,7 @@ type PROPERTY_ID_Holder struct {
 	PROPERTY_IDs []string `json:"PROPERTY_IDs"`
 }
 type PROPERTY_HISTORY struct {
-	PROPERTY_HISTORY_IDs []string `json:"PROPERTY_IDs"`
+	PROPERTY_HISTORY_IDs []string `json:"PROPERTY_HISTORY_IDs"`
 }
 
 //Information to be stored about land in blockchain network
@@ -136,6 +136,11 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 		return getPropertyIds(stub, args)
 	}
 
+	if function == "listpropertyHistory" {
+
+		return listpropertyHistory(stub, args)
+	}
+
 	return nil, nil
 
 }
@@ -154,6 +159,7 @@ func transferOwnerShip(stub shim.ChaincodeStubInterface, args []string) ([]byte,
 	}
 
 	err = json.Unmarshal(bytes, &propertyfetched)
+	fmt.Println("propertydetails  fetched and then to be transferred ", string(bytes))
 
 	if err != nil {
 		return nil, errors.New("Unmarshalling error")
@@ -164,6 +170,7 @@ func transferOwnerShip(stub shim.ChaincodeStubInterface, args []string) ([]byte,
 	propbytes, err = json.Marshal(propertyfetched)
 
 	stub.PutState(propertyId, propbytes)
+	fmt.Println("propertyDetails stored after change ", string(propbytes))
 	// transaction to change the owner of the property completes here
 
 	savePropertyInHistory(stub, propertyfetched, agreementAmount)
@@ -202,6 +209,57 @@ func getPropertyIds(stub shim.ChaincodeStubInterface, args []string) ([]byte, er
 		return nil, err
 	}
 	return bytes, nil
+
+}
+
+func listpropertyHistory(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+
+	propertyId := args[0]
+
+	bytes, err := stub.GetState("property_history_Holder")
+
+	if err != nil {
+		return nil, errors.New("Error getting property history holder")
+	}
+
+	fmt.Println("Ids recieved", string(bytes))
+	var propertyhistoryHolder PROPERTY_HISTORY
+	err = json.Unmarshal(bytes, &propertyhistoryHolder)
+
+	result := "["
+
+	var temp []byte
+	var p Property
+
+	for _, proHistoryId := range propertyhistoryHolder.PROPERTY_HISTORY_IDs {
+
+		fmt.Println("Inside for loop for getting Property. Property History Id is  ", proHistoryId)
+
+		bytes, err := stub.GetState(proHistoryId)
+		var propertyHistory PropertyHistory
+		json.Unmarshal(bytes, &propertyHistory)
+
+		if propertyHistory.PropertyId == propertyId {
+
+			p, err = retrieveProperty(stub, propertyId)
+
+			temp, err = json.Marshal(p)
+
+			if err == nil {
+				result += string(temp) + ","
+			}
+
+		}
+
+	}
+
+	if len(result) == 1 {
+		result = "[]"
+	} else {
+		result = result[:len(result)-1] + "]"
+	}
+
+	return []byte(result), nil
 
 }
 
@@ -450,9 +508,7 @@ func savePropertyInHistory(stub shim.ChaincodeStubInterface, propertyDetails Pro
 	propHis.PropertyId = propIdSTR
 	propHis.AgreementDate = timestr
 	propHis.AgreementAmount = agreementAmount
-
 	propHis.OwnerId = propertyDetails.OwnerId
-
 	propHis.HistoryId = generatePropertyHistoryId()
 
 	hsitoryBytes, err := json.Marshal(propHis)

@@ -18,8 +18,3 @@ func listRegisteredPropertiesByPincode(stub shim.ChaincodeStubInterface, args []
 
 	return nil, nil
 }
-
-func listpropertyHistory(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-
-	return nil, nil
-}
