@@ -229,7 +229,7 @@ func listpropertyHistory(stub shim.ChaincodeStubInterface, args []string) ([]byt
 	result := "["
 
 	var temp []byte
-	var p Property
+	var p PropertyHistory
 
 	for _, proHistoryId := range propertyhistoryHolder.PROPERTY_HISTORY_IDs {
 
@@ -241,7 +241,7 @@ func listpropertyHistory(stub shim.ChaincodeStubInterface, args []string) ([]byt
 
 		if propertyHistory.PropertyId == propertyId {
 
-			p, err = retrieveProperty(stub, propertyId)
+			p, err = retrievePropertyHistory(stub, proHistoryId)
 
 			temp, err = json.Marshal(p)
 
@@ -387,10 +387,29 @@ func retrieveProperty(stub shim.ChaincodeStubInterface, propertyId string) (Prop
 
 	bytes, err := stub.GetState(propertyId)
 
-	fmt.Println("Owner Id is ", propertyId, "and owner details are ", string(bytes))
+	fmt.Println("property Id is ", propertyId, "and property details are ", string(bytes))
 
 	if err != nil {
-		return p, errors.New("Owner not found")
+		return p, errors.New("property not found")
+	}
+
+	err = json.Unmarshal(bytes, &p)
+
+	return p, nil
+
+}
+func retrievePropertyHistory(stub shim.ChaincodeStubInterface, propertyHistoryId string) (PropertyHistory, error) {
+
+	fmt.Println("Inside retrieve Property History")
+
+	var p PropertyHistory
+
+	bytes, err := stub.GetState(propertyHistoryId)
+
+	fmt.Println("Property History Id is ", propertyHistoryId, "and owner details are ", string(bytes))
+
+	if err != nil {
+		return p, errors.New("property history not found")
 	}
 
 	err = json.Unmarshal(bytes, &p)
@@ -485,6 +504,16 @@ func generateUserId() int {
 
 }
 
+func generatePropertyId() int {
+
+	min := 10000000
+	max := 99999999
+
+	rand.Seed(time.Now().Unix())
+	return (rand.Intn(max-min) + min)
+
+}
+
 func generatePropertyHistoryId() int {
 
 	min := 100001
@@ -549,7 +578,7 @@ func createProperty(stub shim.ChaincodeStubInterface, args []string) ([]byte, er
 	propertyDetails.Plotno = args[4]
 	propertyDetails.Longitude = args[5]
 	propertyDetails.Latitude = args[6]
-	propertyDetails.PropertyId = generateUserId()
+	propertyDetails.PropertyId = generatePropertyId()
 
 	propertyDetailsBytes, err := json.Marshal(propertyDetails)
 
