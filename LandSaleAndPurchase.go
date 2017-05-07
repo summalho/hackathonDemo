@@ -203,7 +203,7 @@ func transferOwnerShip(stub shim.ChaincodeStubInterface, args []string) ([]byte,
 	var propbytes []byte
 
 	propertyId := args[0]
-	agreementAmount := args[2]
+	agreementAmount := args[1]
 
 	bytes, err := stub.GetState(propertyId)
 	if err != nil {
@@ -217,7 +217,7 @@ func transferOwnerShip(stub shim.ChaincodeStubInterface, args []string) ([]byte,
 		return nil, errors.New("Unmarshalling error")
 	}
 
-	propertyfetched.OwnerId = args[3]
+	propertyfetched.OwnerId = args[2]
 
 	propbytes, err = json.Marshal(propertyfetched)
 
