@@ -140,8 +140,59 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 
 		return listpropertyHistory(stub, args)
 	}
+	if function == "searchOwnerByAdhaar" {
+
+		return searchOwnerByAdhaar(stub, args)
+	}
 
 	return nil, nil
+
+}
+
+func searchOwnerByAdhaar(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+
+	fmt.Println("Inside search Owner by Adhaar")
+	adhaarNumber := args[0]
+
+	bytes, err := stub.GetState("owner_Ids")
+
+	fmt.Println("Ids recieved", string(bytes))
+	var ownerIDHolder OWNER_ID_Holder
+	err = json.Unmarshal(bytes, &ownerIDHolder)
+
+	if err != nil {
+		return nil, errors.New("problem unmarshalling data")
+	}
+	result := "["
+
+	var temp []byte
+	var o Owner
+
+	for _, own := range ownerIDHolder.OWNER_IDs {
+
+		fmt.Println("Inside for loop for getting Owner. Owner Id is  ", own)
+
+		ownerBytes, err := stub.GetState(own)
+		var owner Owner
+		err = json.Unmarshal(ownerBytes, &owner)
+
+		if owner.AadharNumber == adhaarNumber {
+
+			o, err = retrieveOwner(stub, own)
+
+			temp, err = json.Marshal(o)
+
+			if err == nil {
+				result += string(temp)
+			}
+
+			break
+
+		}
+
+	}
+
+	return []byte(result), nil
 
 }
 
