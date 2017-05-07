@@ -28,11 +28,12 @@ type Property struct {
 	OwnerId    string `json:"ownerId"`
 	PropertyId int    `json:"propertyId"`
 	Plotno     string `json:"plotno"`
-	City       string `json:"City"`
+	City       string `json:"city"`
 	Area       string `json:"area"`
 	Pincode    string `json:"Pincode"`
-	Latitude   string `json:"Latitude"`
-	Longitude  string `json:"Longitude"`
+	Latitude   string `json:"latitude"`
+	Longitude  string `json:"longitude"`
+	Locality   string `json:"locality"`
 }
 
 type Owner struct {
@@ -623,12 +624,13 @@ func createProperty(stub shim.ChaincodeStubInterface, args []string) ([]byte, er
 	propertyDetails := Property{}
 
 	propertyDetails.OwnerId = args[0]
-	propertyDetails.Area = args[1]
-	propertyDetails.City = args[2]
-	propertyDetails.Pincode = args[3]
-	propertyDetails.Plotno = args[4]
-	propertyDetails.Longitude = args[5]
-	propertyDetails.Latitude = args[6]
+	propertyDetails.Locality = args[1]
+	propertyDetails.Area = args[2]
+	propertyDetails.City = args[3]
+	propertyDetails.Pincode = args[4]
+	propertyDetails.Plotno = args[5]
+	propertyDetails.Longitude = args[6]
+	propertyDetails.Latitude = args[7]
 	propertyDetails.PropertyId = generatePropertyId()
 
 	propertyDetailsBytes, err := json.Marshal(propertyDetails)
